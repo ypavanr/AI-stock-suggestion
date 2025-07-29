@@ -10,7 +10,7 @@ server=Flask(__name__)
 server.config["MYSQL_HOST"]=os.environ.get("MYSQL_HOST")
 server.config["MYSQL_PASSWORD"]=os.environ.get("MYSQL_PASSWORD")
 server.config["MYSQL_DB"]=os.environ.get("MYSQL_DB")
-server.config["MYSQL_PORT"]=os.environ.get("MYSQL_PORT")
+server.config["MYSQL_PORT"]=int(os.environ.get("MYSQL_PORT"))
 mysql=MySQL(server)
 
 @server.route("/login",methods=["POST"])
@@ -40,27 +40,26 @@ def login():
 
     
     
-@server.route("/register",methods=["POST"])
+@server.route("/register", methods=["POST"])
 def register():
-    email=request.form.get('email')
-    cur=mysql.connection.cursor()
-    res=cur.execute(
-        "SELECT email, password FROM user WHERE email=%s",(email,)
-    )
-    
-    if res>0:
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    cur = mysql.connection.cursor()
+
+    res = cur.execute("SELECT email FROM user WHERE email = %s", (email,))
+    if res > 0:
         cur.close()
-        return "User already registered",409
+        return "User already registered", 409
 
-    password=request.form.get('password')
     hashed_password = generate_password_hash(password)
+    cur.execute("INSERT INTO user(email, password) VALUES(%s, %s)", (email, hashed_password))
     
-    res=cur.execute(
-        "insert into user(email,password) values(%s,%s)",(email,hashed_password)
-    )
-    cur.close()
+    mysql.connection.commit()
 
-    return "user registered successfully",201
+    cur.close()
+    return "user registered successfully", 201
+
 
 
 
