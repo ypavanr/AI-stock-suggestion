@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: preference-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: preference
+  template:
+    metadata:
+      labels:
+        app: preference
+    spec:
+      containers:
+      - name: preference-container
+        image: ypavanr/preference:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MYSQL_HOST
+          value: host.minikube.internal
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_DB
+          value: auth
+        - name: MYSQL_USER
+          value: root
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: password
+        - name: AUTH_SVC_ADDRESS
+          value: "auth:3000"
