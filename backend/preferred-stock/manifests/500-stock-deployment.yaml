@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stocks-service
+  labels:
+    app: stocks-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stocks-service
+  template:
+    metadata:
+      labels:
+        app: stocks-service
+    spec:
+      containers:
+        - name: stocks-container
+          image: ypavanr/500-stock-service:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: AUTH_SVC_ADDRESS
+              value: "auth:3000"
