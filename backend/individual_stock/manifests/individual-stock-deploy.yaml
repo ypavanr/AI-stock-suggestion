@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: individual-stock-details
+  labels:
+    app: individual-stock-details
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: individual-stock-details
+  template:
+    metadata:
+      labels:
+        app: individual-stock-details
+    spec:
+      containers:
+        - name: individual-stock-details
+          image: ypavanr/individual-stock-details:latest  
+          ports:
+            - containerPort: 8082
+          env:
+            - name: PREDICT_API_URL
+              value: "http://predict-stock-category:8081/get-stock-category"  

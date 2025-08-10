@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: predict-stock-category
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: predict-stock-category
+  template:
+    metadata:
+      labels:
+        app: predict-stock-category
+    spec:
+      containers:
+      - name: predict-stock-category
+        image: ypavanr/predict-stock-category:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: stock-predict-config
+        - secretRef:
+            name: stock-predict-secret
+        volumeMounts:
+        - name: csv-data
+          mountPath: /app/merged_stocks.csv
+          subPath: merged_stocks.csv
+      volumes:
+      - name: csv-data
+        configMap:
+          name: stock-predict-config
